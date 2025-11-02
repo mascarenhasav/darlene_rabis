@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoramento da Kombi 🚐</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #222;
+      padding: 15px 0;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      padding: 20px;
+    }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.4);
+    }
+
+    .card h2 {
+      color: #00ffcc;
+      font-size: 1.1em;
+    }
+
+    .value {
+      font-size: 2em;
+      margin: 10px 0;
+    }
+
+    footer {
+      margin-top: 20px;
+      padding: 10px;
+      color: #888;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <header>🚐 Kombi Monitor - Tempo Real</header>
+
+  <div class="grid">
+    <div class="card"><h2>Vibração</h2><div id="vibration" class="value">--</div></div>
+    <div class="card"><h2>Bateria (V)</h2><div id="battery" class="value">--</div></div>
+    <div class="card"><h2>Motor (°C)</h2><div id="motor" class="value">--</div></div>
+    <div class="card"><h2>Óleo (°C)</h2><div id="oil" class="value">--</div></div>
+    <div class="card"><h2>Água (°C)</h2><div id="water" class="value">--</div></div>
+    <div class="card"><h2>Portas</h2><div id="doors" class="value">--</div></div>
+    <div class="card"><h2>Latitude</h2><div id="lat" class="value">--</div></div>
+    <div class="card"><h2>Longitude</h2><div id="lon" class="value">--</div></div>
+  </div>
+
+  <footer>Atualizado automaticamente a cada 10s</footer>
+
+  <script>
+    const channelID = "SEU_CHANNEL_ID_AQUI";
+    const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json`;
+
+    async function atualizarDados() {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        document.getElementById("vibration").textContent = parseFloat(data.field1).toFixed(2);
+        document.getElementById("battery").textContent = parseFloat(data.field2).toFixed(2);
+        document.getElementById("motor").textContent = parseFloat(data.field3).toFixed(1);
+        document.getElementById("oil").textContent = parseFloat(data.field4).toFixed(1);
+        document.getElementById("water").textContent = parseFloat(data.field5).toFixed(1);
+        document.getElementById("doors").textContent = data.field6 === "1" ? "Aberta 🚨" : "Fechadas ✅";
+        document.getElementById("lat").textContent = data.field7;
+        document.getElementById("lon").textContent = data.field8;
+      } catch (err) {
+        console.error("Erro ao atualizar dados:", err);
+      }
+    }
+
+    atualizarDados();
+    setInterval(atualizarDados, 10000);
+  </script>
+</body>
+</html>
