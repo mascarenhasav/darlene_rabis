@@ -1,98 +1,260 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitoramento da Kombi 🚐</title>
-  <style>
-    body {
-      background-color: #111;
-      color: #eee;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    header {
-      background: #222;
-      padding: 15px 0;
-      font-size: 1.5em;
-      font-weight: bold;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-      padding: 20px;
-    }
-
-    .card {
-      background: #1e1e1e;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.4);
-    }
-
-    .card h2 {
-      color: #00ffcc;
-      font-size: 1.1em;
-    }
-
-    .value {
-      font-size: 2em;
-      margin: 10px 0;
-    }
-
-    footer {
-      margin-top: 20px;
-      padding: 10px;
-      color: #888;
-      font-size: 0.9em;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kombi Sensor Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        body {
+            margin: 2rem;
+            background-color: #222;
+            color: white;
+        }
+        h1 {
+            text-align: center;
+            background: #EEEEEE;
+            color: black;
+            padding: .2em 1em;
+            border-top: 3px solid #666666;
+            border-bottom: 3px solid #999999;
+        }
+        h2 {
+            text-align: left;
+            padding: .2em 1em;
+            border-top: 5px solid #666666;
+            border-bottom: 1px solid #999999;
+            font-size: 26px;
+        }
+        h3 {
+            text-align: center;
+            color: rgb(201, 33, 33);
+            font-size: 28px;
+        }
+        h4 {
+            text-align: justify;
+            color: white;
+            font-size: 18px;
+        }
+        #controls {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        select {
+            font-size: 16px;
+        }
+        #gallery img {
+            max-width: 200px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            transition: transform 0.2s ease;
+        }
+        #gallery img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .info-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            background-color: #218009;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-weight: bold;
+            font-size: 20px;
+            border: none;
+            line-height: 32px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .info-button:hover {
+            background-color: #186306;
+        }
+        .modal_info {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal_info-content {
+            background-color: #f4f4f4;
+            color: black;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+        .close_info {
+            position: absolute;
+            top: 10px; right: 15px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close_info:hover {
+            color: #000;
+        }
+        .btn-simular {
+            background-color: #218009;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-simular:hover {
+            background-color: #1b6607;
+        }
+    </style>
+    <link rel="icon" href="images/sensor_icon.png" />
 </head>
 <body>
-  <header>🚐 Kombi Monitor - Tempo Real</header>
+    <h1>🚐 Kombi Sensor Dashboard 🚐</h1>
 
-  <div class="grid">
-    <div class="card"><h2>Vibração</h2><div id="vibration" class="value">--</div></div>
-    <div class="card"><h2>Bateria (V)</h2><div id="battery" class="value">--</div></div>
-    <div class="card"><h2>Motor (°C)</h2><div id="motor" class="value">--</div></div>
-    <div class="card"><h2>Óleo (°C)</h2><div id="oil" class="value">--</div></div>
-    <div class="card"><h2>Água (°C)</h2><div id="water" class="value">--</div></div>
-    <div class="card"><h2>Portas</h2><div id="doors" class="value">--</div></div>
-    <div class="card"><h2>Latitude</h2><div id="lat" class="value">--</div></div>
-    <div class="card"><h2>Longitude</h2><div id="lon" class="value">--</div></div>
-  </div>
+    <h2>$ OBJECTIVO</h2>
+    <h3>Monitoramento em tempo real da Kombi Home</h3>
+    <h4>Este painel exibe os dados coletados dos sensores instalados na Kombi Home — incluindo o estado da porta, vibração do motor e localização GPS.
+        O objetivo é acompanhar as leituras e testar a transmissão em tempo real, tanto localmente quanto via nuvem.</h4>
 
-  <footer>Atualizado automaticamente a cada 10s</footer>
+    <h3>Leituras em Tempo Real</h3>
+    <h4>Os gráficos abaixo mostram a leitura atual de cada sensor. Você pode alternar entre eles e também simular dados locais para testes.</h4>
 
-  <script>
-    const channelID = "SEU_CHANNEL_ID_AQUI";
-    const url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json`;
+    <div id="controls">
+        <label for="sensorSelect" style="font-size: 20px;">Selecionar sensor: </label>
+        <select id="sensorSelect">
+            <option value="door">Sensor de Porta</option>
+            <option value="vibration">Sensor de Vibração</option>
+            <option value="gps">Sensor GPS</option>
+        </select>
+        <button class="btn-simular" id="simulateBtn">Simular Dados</button>
+    </div>
 
-    async function atualizarDados() {
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
+    <canvas id="sensorChart" width="600" height="200"></canvas>
 
-        document.getElementById("vibration").textContent = parseFloat(data.field1).toFixed(2);
-        document.getElementById("battery").textContent = parseFloat(data.field2).toFixed(2);
-        document.getElementById("motor").textContent = parseFloat(data.field3).toFixed(1);
-        document.getElementById("oil").textContent = parseFloat(data.field4).toFixed(1);
-        document.getElementById("water").textContent = parseFloat(data.field5).toFixed(1);
-        document.getElementById("doors").textContent = data.field6 === "1" ? "Aberta 🚨" : "Fechadas ✅";
-        document.getElementById("lat").textContent = data.field7;
-        document.getElementById("lon").textContent = data.field8;
-      } catch (err) {
-        console.error("Erro ao atualizar dados:", err);
-      }
-    }
+    <h2>$ ANÁLISE</h2>
+    <h4>Após as coletas reais, os dados serão processados e analisados automaticamente. 
+        Gráficos comparativos e relatórios de eventos (como aberturas de porta, vibrações anormais ou desvios de rota) serão exibidos aqui.</h4>
 
-    atualizarDados();
-    setInterval(atualizarDados, 10000);
-  </script>
+    <div style="position: relative;">
+        <button id="infoBtn" class="info-button" title="Mais informações">?</button>
+    </div>
+
+    <div id="infoModal" class="modal_info">
+        <div class="modal_info-content">
+            <span class="close_info">&times;</span>
+            <div id="modalText">Carregando...</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        const ctx = document.getElementById("sensorChart").getContext("2d");
+
+        let chartInstance = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Leitura do Sensor",
+                    data: [],
+                    borderColor: "#218009",
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        ticks: { color: "white", font: { size: 14, weight: "bold" } },
+                        grid: { color: "#444" }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: "white", font: { size: 14, weight: "bold" } },
+                        grid: { color: "#444" }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: "white", font: { size: 16 } } }
+                }
+            }
+        });
+
+        function simulateSensorData(sensorType) {
+            let value;
+            if (sensorType === "door") {
+                value = Math.random() > 0.5 ? 1 : 0;
+            } else if (sensorType === "vibration") {
+                value = Math.random() * 5;
+            } else if (sensorType === "gps") {
+                value = 20 + Math.random() * 5;
+            }
+            return value;
+        }
+
+        function updateChart(sensorType) {
+            const now = new Date().toLocaleTimeString();
+            const newValue = simulateSensorData(sensorType);
+
+            if (chartInstance.data.labels.length > 20) {
+                chartInstance.data.labels.shift();
+                chartInstance.data.datasets[0].data.shift();
+            }
+
+            chartInstance.data.labels.push(now);
+            chartInstance.data.datasets[0].data.push(newValue);
+            chartInstance.data.datasets[0].label = `Leitura do ${sensorType.toUpperCase()}`;
+            chartInstance.update();
+        }
+
+        document.getElementById("simulateBtn").addEventListener("click", () => {
+            const sensorType = document.getElementById("sensorSelect").value;
+            setInterval(() => updateChart(sensorType), 1000);
+        });
+
+        // Modal info
+        const modal_info = document.getElementById("infoModal");
+        const btn = document.getElementById("infoBtn");
+        const span = document.getElementsByClassName("close_info")[0];
+        const modalText = document.getElementById("modalText");
+
+        btn.onclick = () => {
+            modal_info.style.display = "block";
+            modalText.innerHTML = "Carregando informações...";
+            fetchInfoContent();
+        };
+
+        span.onclick = () => { modal_info.style.display = "none"; };
+        window.onclick = (event) => { if (event.target == modal_info) modal_info.style.display = "none"; };
+
+        async function fetchInfoContent() {
+            try {
+                const res = await fetch("docs/info.md");
+                const text = await res.text();
+                modalText.innerHTML = marked.parse(text);
+            } catch {
+                modalText.innerHTML = "<p>Arquivo de informações não encontrado.</p>";
+            }
+        }
+    </script>
 </body>
 </html>
