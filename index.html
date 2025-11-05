@@ -39,8 +39,22 @@
         </div>
 
         <div class="chart-container" id="chartContainer">
+            <button id="closeChart" style="
+                position:absolute;
+                top:5px;
+                right:5px;
+                background:#e8d9b5;
+                color:#1c1c1c;
+                border:none;
+                border-radius:50%;
+                width:24px;
+                height:24px;
+                font-weight:bold;
+                cursor:pointer;
+            ">×</button>
             <h4 id="chartTitle">Histórico do Sensor</h4>
             <canvas id="sensorChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -108,23 +122,24 @@
         // --- LOAD MODEL ---
         const loader = new GLTFLoader();
         let kombi = null;
+
         loader.load(MODEL_URL, gltf => {
-        kombi = gltf.scene;
-        kombi.name = 'kombi';
-        kombi.traverse(child => { if(child.isMesh){ child.castShadow = true; child.receiveShadow = true; } });
-        scene.add(kombi);
+            kombi = gltf.scene;
+            kombi.name = 'kombi';
+            kombi.traverse(child => { if(child.isMesh){ child.castShadow = true; child.receiveShadow = true; } });
+            scene.add(kombi);
 
-        SENSOR_MAP.forEach(s => {
-            const node = kombi.getObjectByName(s.nodeName);
-            const pos = node ? node.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(0,1,0);
-            createHotspot(s.id, s.label, pos);
-        });
+            SENSOR_MAP.forEach(s => {
+                const node = kombi.getObjectByName(s.nodeName);
+                const pos = node ? node.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(0,1,0);
+                createHotspot(s.id, s.label, pos);
+            });
 
-        populateSensorsList();
-        }, xhr => {
-        // progresso opcional
-        }, err => {
-        console.warn('Falha ao carregar modelo. Verifique MODEL_URL e caminho do arquivo .glb.');
+            populateSensorsList();
+            }, xhr => {
+            // progresso opcional
+            }, err => {
+            console.warn('Falha ao carregar modelo. Verifique MODEL_URL e caminho do arquivo .glb.');
         });
 
         // --- RESIZE ---
@@ -213,10 +228,10 @@
 
         // --- RENDER LOOP ---
         function animate(){
-        requestAnimationFrame(animate);
-        controls.update();
-        if(kombi) updateHotspotsScreenPositions();
-        renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+            controls.update();
+            if(kombi) updateHotspotsScreenPositions();
+            renderer.render(scene, camera);
         }
         animate();
         mockSensorUpdates();
@@ -267,6 +282,23 @@
         sidebar.classList.toggle('closed');
         toggleBtn.classList.toggle('closed');
         toggleBtn.textContent = sidebar.classList.contains('closed') ? '☰' : '✖';
+        });
+
+        const chartContainer = document.getElementById('chartContainer');
+        const closeChartBtn = document.getElementById('closeChart');
+
+        // Fechar ao clicar no botão X
+        closeChartBtn.addEventListener('click', () => {
+        chartContainer.style.display = 'none';
+        if (window.activeChart) window.activeChart.destroy();
+        });
+
+        // Fechar ao clicar fora do gráfico
+        window.addEventListener('click', (e) => {
+        if (chartContainer.style.display === 'block' && !chartContainer.contains(e.target) && !e.target.classList.contains('dot')) {
+            chartContainer.style.display = 'none';
+            if (window.activeChart) window.activeChart.destroy();
+        }
         });
 
 
