@@ -22,8 +22,10 @@
 <body>
     <header>Darlene Rabis</header>
 
-    <div id="sidebar">
-        <h3>Controles</h3>
+    <button id="toggleSidebar" class="toggle-btn closed">☰</button>
+
+    <div id="sidebar" class="closed">
+        <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Controles</h3>
         <button id="resetView">Resetar Visão</button>
         <button id="wireframe">Wireframe</button>
         <hr>
@@ -31,13 +33,19 @@
         <div id="sensorList"></div>
     </div>
 
-    <div id="main-canvas">
-      <div id="hotspots"></div>
+    <div id="mainContent">
+        <div id="main-canvas">
+            <div id="hotspots"></div>
+        </div>
+
+        <div class="chart-container" id="chartContainer">
+            <h4 id="chartTitle">Histórico do Sensor</h4>
+            <canvas id="sensorChart"></canvas>
+        </div>
     </div>
-    <div class="chart-container" id="chartContainer">
-    <h4 id="chartTitle">Histórico do Sensor</h4>
-    <canvas id="sensorChart"></canvas>
-    </div>
+
+    <footer>© 2025 Projeto Kombi — Monitoramento em tempo real</footer>
+
 
     <!-- Import map + módulos ES -->
     <script type="importmap">
@@ -49,6 +57,7 @@
     }
     </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -136,8 +145,11 @@
         hotspotsRoot.appendChild(el);
         hotspots[id] = {el, worldPos: worldPos.clone(), label};
 
+        
+
+        // --- Evento de clique no hotspot ---
         el.querySelector('.dot').addEventListener('click', () => {
-            alert('Ação de sensor: '+label+' (id='+id+')');
+        showSensorChart(label, id);
         });
 
         // show tooltip on hover
@@ -208,6 +220,55 @@
         }
         animate();
         mockSensorUpdates();
+
+        // --- Exibe o gráfico flutuante ---
+        function showSensorChart(label, id) {
+        const chartBox = document.getElementById('chartContainer');
+        const title = document.getElementById('chartTitle');
+        const canvas = document.getElementById('sensorChart');
+
+        title.textContent = `Histórico: ${label}`;
+        chartBox.style.display = 'block';
+
+        // Destroi gráfico antigo se já existir
+        if (window.activeChart) {
+            window.activeChart.destroy();
+        }
+
+        // Cria um novo gráfico simulado
+        const ctx = canvas.getContext('2d');
+        const data = Array.from({ length: 20 }, () => Math.random() * 100);
+
+        window.activeChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+            labels: data.map((_, i) => i),
+            datasets: [{
+                label: label,
+                data: data,
+                borderColor: '#7fd13b',
+                tension: 0.3,
+                fill: false
+            }]
+            },
+            options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, grid: { color: '#444' } } }
+            }
+        });
+        }
+
+        // --- TOGGLE SIDEBAR ---
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+
+        toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('closed');
+        toggleBtn.classList.toggle('closed');
+        toggleBtn.textContent = sidebar.classList.contains('closed') ? '☰' : '✖';
+        });
+
 
         // --- NOTES: para usar dados reais ---
         // - Substitua mockSensorUpdates por conexão WebSocket/MQTT e chame setSensorValue(id, value)
