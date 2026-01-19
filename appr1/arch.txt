@@ -1,0 +1,33 @@
+
+kombi_pico/
+├── main.py                 # loop principal
+├── boot.py                 # inicia Wi-Fi
+├── config.py               # pinos, tempos, Wi-Fi
+├── sensors/
+│   ├── door_switch.py      # fim de curso
+│   ├── ultrasonic.py       # HC-SR04
+│   └── simulator.py        # simulação PC
+├── net/
+│   ├── wifi.py             # conexão Wi‑Fi
+│   └── http_client.py      # POST para Google
+├── storage/
+│   └── buffer.py           # fila local
+├── utils/
+│   ├── debounce.py
+│   └── timeutils.py
+
+
+curl -X POST "https://script.google.com/macros/s/AKfycbxKn0e7BMBRK1wkRajZObXYyEEzjEIYhG7yHCPRSvrQ1vlYPecqMPdoqb5iFB5adfNz5w/exec" \
+  -H "Content-Type: application/json" \
+  -H "X-Device-Token: darlene_rabis" \
+  -d '[{"ts":1700000000,"porta_dianteira_aberta":true,"porta_lateral_aberta":false,"presenca_frente":true,"presenca_frente_dist_cm":95.2}]'
+
+Ativa alarme:
+https://script.google.com/macros/s/AKfycbznPsSL97OKI4GnNvl_eFs1GYIIfN_NqJg2p7rDqOnsOWGaw5kXsn_JTr5Ex-hCfhymMQ/exec?cmd=set_alarm&enabled=true&token=darlene_rabis
+
+
+Desativa alarme:
+https://script.google.com/macros/s/AKfycbznPsSL97OKI4GnNvl_eFs1GYIIfN_NqJg2p7rDqOnsOWGaw5kXsn_JTr5Ex-hCfhymMQ/exec?cmd=set_alarm&enabled=false&token=darlene_rabis
+
+Consulta estado do alarme:
+https://script.google.com/macros/s/AKfycbznPsSL97OKI4GnNvl_eFs1GYIIfN_NqJg2p7rDqOnsOWGaw5kXsn_JTr5Ex-hCfhymMQ/exec?cmd=get_alarm&token=darlene_rabis
