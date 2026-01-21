@@ -1,5 +1,10 @@
 
 # utils/watchdog.py
+try:
+    import machine
+except ImportError:
+    import mock_machine as machine
+
 from machine import WDT
 
 class Watchdog:

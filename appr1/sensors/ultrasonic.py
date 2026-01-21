@@ -1,4 +1,8 @@
 # sensors/ultrasonic.py
+try:
+    import machine
+except ImportError:
+    import mock_machine as machine
 from machine import Pin, time_pulse_us
 import time
 

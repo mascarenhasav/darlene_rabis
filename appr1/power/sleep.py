@@ -1,7 +1,11 @@
 
 # power/sleep.py
-import machine
+try:
+    import machine
+except ImportError:
+    import mock_machine as machine
 import time
+
 
 class PowerManager:
     def __init__(self, sleep_after_s=120):
